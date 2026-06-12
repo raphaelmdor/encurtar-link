@@ -3,7 +3,7 @@ const { nanoid } = require('nanoid');
 const { query } = require('../db');
 
 const router = express.Router();
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 // Criar link encurtado
 router.post('/shorten', async (req, res) => {
