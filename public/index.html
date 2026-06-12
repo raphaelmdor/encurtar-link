@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encurtador de Links</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px; }
+    h1 { font-size: 2rem; color: #1a1a2e; margin-bottom: 8px; }
+    p.subtitle { color: #555; margin-bottom: 32px; }
+    .card { background: #fff; border-radius: 12px; padding: 28px; width: 100%; max-width: 600px; box-shadow: 0 2px 12px rgba(0,0,0,.08); margin-bottom: 24px; }
+    .form-group { display: flex; flex-direction: column; gap: 10px; }
+    input { border: 1px solid #ddd; border-radius: 8px; padding: 12px 14px; font-size: 1rem; width: 100%; }
+    input:focus { outline: none; border-color: #6c63ff; box-shadow: 0 0 0 3px rgba(108,99,255,.15); }
+    button { background: #6c63ff; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 1rem; cursor: pointer; transition: background .2s; }
+    button:hover { background: #574fd6; }
+    .result { margin-top: 16px; padding: 14px; background: #f0f0ff; border-radius: 8px; display: none; word-break: break-all; }
+    .result a { color: #6c63ff; font-weight: 600; }
+    .copy-btn { background: #eee; color: #333; padding: 6px 14px; font-size: .85rem; margin-top: 8px; display: inline-block; }
+    .copy-btn:hover { background: #ddd; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th { text-align: left; padding: 10px 8px; color: #888; font-weight: 500; border-bottom: 1px solid #eee; }
+    td { padding: 10px 8px; border-bottom: 1px solid #f5f5f5; }
+    td a { color: #6c63ff; }
+    .clicks { font-weight: 600; color: #333; }
+    .del-btn { background: #ff4d4f; padding: 4px 10px; font-size: .8rem; }
+    .del-btn:hover { background: #cf1322; }
+    .empty { color: #aaa; text-align: center; padding: 20px; }
+    .msg { font-size: .85rem; color: #d32f2f; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h1>🔗 Encurtador de Links</h1>
+  <p class="subtitle">Cole seu link longo e receba um curto!</p>
+
+  <div class="card">
+    <div class="form-group">
+      <input id="urlInput" type="url" placeholder="https://exemplo.com/seu-link-longo" />
+      <input id="customCode" type="text" placeholder="Código personalizado (opcional)" maxlength="20" />
+      <button onclick="shorten()">Encurtar</button>
+    </div>
+    <p id="msg" class="msg"></p>
+    <div id="result" class="result">
+      Link criado: <a id="shortLink" href="#" target="_blank"></a><br/>
+      <button class="copy-btn" onclick="copy()">Copiar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-bottom:16px;font-size:1.1rem;color:#333">Links criados</h2>
+    <table>
+      <thead><tr><th>Código</th><th>Destino</th><th>Cliques</th><th></th></tr></thead>
+      <tbody id="linksBody"></tbody>
+    </table>
+    <p id="empty" class="empty" style="display:none">Nenhum link criado ainda.</p>
+  </div>
+
+  <script>
+    const API = '/api/urls';
+
+    async function shorten() {
+      const url = document.getElementById('urlInput').value.trim();
+      const customCode = document.getElementById('customCode').value.trim();
+      const msg = document.getElementById('msg');
+      msg.textContent = '';
+
+      if (!url) { msg.textContent = 'Informe uma URL.'; return; }
+
+      const res = await fetch(`${API}/shorten`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, customCode: customCode || undefined }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) { msg.textContent = data.error; return; }
+
+      const el = document.getElementById('shortLink');
+      el.href = data.shortUrl;
+      el.textContent = data.shortUrl;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('urlInput').value = '';
+      document.getElementById('customCode').value = '';
+      loadLinks();
+    }
+
+    function copy() {
+      navigator.clipboard.writeText(document.getElementById('shortLink').textContent);
+      alert('Link copiado!');
+    }
+
+    async function loadLinks() {
+      const res = await fetch(API);
+      const links = await res.json();
+      const tbody = document.getElementById('linksBody');
+      const empty = document.getElementById('empty');
+
+      if (!links.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+
+      tbody.innerHTML = links.map(l => `
+        <tr>
+          <td><a href="/${l.code}" target="_blank">${l.code}</a></td>
+          <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.original_url}">${l.original_url}</td>
+          <td class="clicks">${l.clicks}</td>
+          <td><button class="del-btn" onclick="del('${l.code}')">Excluir</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function del(code) {
+      if (!confirm(`Excluir /${code}?`)) return;
+      await fetch(`${API}/${code}`, { method: 'DELETE' });
+      loadLinks();
+    }
+
+    loadLinks();
+  </script>
+</body>
+</html>
