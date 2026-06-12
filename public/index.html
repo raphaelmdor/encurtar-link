@@ -374,7 +374,6 @@
 
     async function shorten() {
       const url = document.getElementById('urlInput').value.trim();
-      const customCode = document.getElementById('customCode').value.trim();
       const msg = document.getElementById('msg');
       const btn = document.getElementById('shortenBtn');
       msg.textContent = '';
@@ -387,7 +386,7 @@
       const res = await fetch(`${API}/shorten`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, customCode: customCode || undefined }),
+        body: JSON.stringify({ url }),
       });
 
       btn.textContent = 'Encurtar link';
@@ -403,7 +402,6 @@
       document.getElementById('copyBtn').classList.remove('copied');
       document.getElementById('result').style.display = 'block';
       document.getElementById('urlInput').value = '';
-      document.getElementById('customCode').value = '';
       loadLinks();
     }
 
