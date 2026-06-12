@@ -19,14 +19,17 @@ router.post('/shorten', async (req, res) => {
     return res.status(400).json({ error: 'URL inválida.' });
   }
 
-  const code = customCode || nanoid(4);
-
-  if (customCode) {
-    const existing = await query('SELECT id FROM urls WHERE code = $1', [code]);
-    if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'Código personalizado já está em uso.' });
-    }
+  const duplicate = await query('SELECT code FROM urls WHERE original_url = $1', [url]);
+  if (duplicate.rows.length > 0) {
+    const code = duplicate.rows[0].code;
+    return res.status(200).json({
+      code,
+      shortUrl: `${BASE_URL}/${code}`,
+      originalUrl: url,
+    });
   }
+
+  const code = customCode || nanoid(4);
 
   await query('INSERT INTO urls (code, original_url) VALUES ($1, $2)', [code, url]);
 
