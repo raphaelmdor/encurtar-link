@@ -406,7 +406,7 @@
     }
 
     function copy() {
-      const text = document.getElementById('shortLink').href;
+      const text = document.getElementById('shortLink').textContent;
       navigator.clipboard.writeText(text);
       const btn = document.getElementById('copyBtn');
       btn.textContent = 'Copiado ✓';
