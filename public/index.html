@@ -80,7 +80,6 @@
       animation: fadeUp .5s ease both;
     }
     .card:nth-child(2) { animation-delay: .05s; }
-    .card:nth-child(3) { animation-delay: .1s; }
 
     .card-title {
       font-size: .8rem;
@@ -204,70 +203,6 @@
       color: #6ee7b7;
     }
 
-    /* Table */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
-    th {
-      text-align: left;
-      padding: 8px 10px;
-      color: var(--text-muted);
-      font-weight: 500;
-      font-size: .75rem;
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      border-bottom: 1px solid var(--border);
-    }
-    td {
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      vertical-align: middle;
-    }
-    tr:last-child td { border-bottom: none; }
-    tr { transition: background .15s; }
-    tr:hover td { background: var(--surface-hover); }
-    td a {
-      color: #a78bfa;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    td a:hover { text-decoration: underline; }
-    .clicks {
-      font-weight: 600;
-      color: var(--text);
-    }
-    .clicks-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: rgba(124,58,237,0.15);
-      border: 1px solid rgba(124,58,237,0.2);
-      border-radius: 20px;
-      padding: 2px 10px;
-      font-size: .8rem;
-      font-weight: 600;
-      color: #c4b5fd;
-    }
-    .del-btn {
-      width: auto;
-      padding: 5px 12px;
-      font-size: .78rem;
-      background: rgba(239,68,68,0.12);
-      border: 1px solid rgba(239,68,68,0.25);
-      color: #fca5a5;
-      border-radius: 7px;
-      font-weight: 500;
-      margin-top: 0;
-    }
-    .del-btn:hover { background: rgba(239,68,68,0.25); opacity: 1; }
-
-    .empty {
-      text-align: center;
-      padding: 32px 0;
-      color: var(--text-muted);
-      font-size: .9rem;
-    }
-    .empty-icon { font-size: 2rem; margin-bottom: 8px; }
-
     /* Toast */
     .toast {
       position: fixed;
@@ -339,27 +274,6 @@
     </div>
   </div>
 
-  <div class="card">
-    <p class="card-title">Links criados</p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Destino</th>
-            <th>Cliques</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="linksBody"></tbody>
-      </table>
-    </div>
-    <div id="empty" class="empty" style="display:none">
-      <div class="empty-icon">🔗</div>
-      Nenhum link criado ainda.
-    </div>
-  </div>
-
   <div class="toast" id="toast"></div>
 
   <script>
@@ -402,7 +316,6 @@
       document.getElementById('copyBtn').classList.remove('copied');
       document.getElementById('result').style.display = 'block';
       document.getElementById('urlInput').value = '';
-      loadLinks();
     }
 
     function copy() {
@@ -414,41 +327,9 @@
       setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
     }
 
-    async function loadLinks() {
-      const res = await fetch(API);
-      const links = await res.json();
-      const tbody = document.getElementById('linksBody');
-      const empty = document.getElementById('empty');
-
-      if (!links.length) {
-        tbody.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-      }
-      empty.style.display = 'none';
-
-      tbody.innerHTML = links.map(l => `
-        <tr>
-          <td><a href="/${l.code}" target="_blank">${l.code}</a></td>
-          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.original_url}">
-            <span style="color:var(--text-muted)">${l.original_url}</span>
-          </td>
-          <td><span class="clicks-badge">▲ ${l.clicks}</span></td>
-          <td><button class="btn del-btn" onclick="del('${l.code}')">Excluir</button></td>
-        </tr>
-      `).join('');
-    }
-
-    async function del(code) {
-      await fetch(`${API}/${code}`, { method: 'DELETE' });
-      loadLinks();
-    }
-
     document.getElementById('urlInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') shorten();
     });
-
-    loadLinks();
   </script>
 </body>
 </html>
