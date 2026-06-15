@@ -287,13 +287,12 @@
       <p id="msg" class="msg"></p>
     </div>
     <div id="result" class="result">
-      <button onclick="newLink()" style="position:absolute;top:16px;left:16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;padding:4px;line-height:1;" title="Voltar">&#8592;</button>
       <p class="result-label">Link criado</p>
       <div class="result-row">
         <a id="shortLink" href="#" target="_blank"></a>
         <button class="btn copy-btn" id="copyBtn" onclick="copy()">Copiar</button>
       </div>
-      <button class="btn" onclick="newLink()" style="margin-top:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:.85rem;">Encurtar outro link</button>
+      <button class="btn" onclick="history.back()" style="margin-top:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:.85rem;">Encurtar outro link</button>
     </div>
   </div>
 
@@ -345,16 +344,17 @@
       history.pushState({ page: 'result' }, '');
     }
 
-    function newLink() {
-      document.getElementById('result').style.display = 'none';
-      document.getElementById('form-content').style.display = 'block';
-      if (history.state && history.state.page === 'result') history.back();
+    function showView(page) {
+      const isResult = page === 'result';
+      document.getElementById('form-content').style.display = isResult ? 'none' : 'block';
+      document.getElementById('result').style.display = isResult ? 'block' : 'none';
     }
 
-    window.addEventListener('popstate', () => {
-      document.getElementById('result').style.display = 'none';
-      document.getElementById('form-content').style.display = 'block';
+    window.addEventListener('popstate', e => {
+      showView(e.state && e.state.page === 'result' ? 'result' : 'form');
     });
+
+    history.replaceState({ page: 'form' }, '');
 
     function copy() {
       const text = document.getElementById('shortLink').textContent;
