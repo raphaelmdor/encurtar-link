@@ -241,90 +241,44 @@
       to   { transform: translateX(100%); }
     }
 
-    #page-form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    #page-result {
-      position: fixed;
-      inset: 0;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg);
-      background-image:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.3), transparent),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(99,102,241,0.15), transparent);
-      padding: 24px;
-    }
-    #page-result .card {
-      text-align: center;
-      animation: fadeUp .4s ease both;
-    }
-    #page-result .result-label {
-      font-size: 1rem;
-      margin-bottom: 16px;
-    }
-    #page-result .result-row {
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-    .back-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: .85rem;
-      padding: 10px;
-      margin-top: 4px;
-    }
-    .back-btn:hover { background: var(--surface-hover); opacity: 1; color: var(--text); }
-
     /* Responsive */
     @media (max-width: 480px) {
       body { padding: 32px 12px 48px; }
       .header .logo { font-size: 1.6rem; }
       .card { padding: 20px 16px; }
-      .result-row { flex-direction: column; align-items: center; }
+      .result-row { flex-direction: column; align-items: flex-start; }
       .copy-btn { width: 100%; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-  <div id="page-form">
-    <div class="header">
-      <div class="logo">🔗 <span>Encurtador de link</span></div>
-      <p>Cole seu link longo e receba um curto e fácil de compartilhar.</p>
-    </div>
-
-    <div class="card">
-      <p class="card-title">Novo link</p>
-      <div class="input-wrapper">
-        <span class="icon">🌐</span>
-        <input id="urlInput" type="url" placeholder="https://exemplo.com/seu-link-muito-longo" />
-      </div>
-      <button class="btn" id="shortenBtn" onclick="shorten()">Encurtar link</button>
-      <p id="msg" class="msg"></p>
-    </div>
-
-    <img src="/logo.png" alt="rmgo.net" style="margin-top:10px;height:150px;opacity:0.85;" />
+  <div class="header">
+    <div class="logo">🔗 <span>Encurtador de link</span></div>
+    <p>Cole seu link longo e receba um curto e fácil de compartilhar.</p>
   </div>
 
-  <div id="page-result">
-    <div class="card">
+  <div class="card">
+    <p class="card-title">Novo link</p>
+    <div class="input-wrapper">
+      <span class="icon">🌐</span>
+      <input id="urlInput" type="url" placeholder="https://exemplo.com/seu-link-muito-longo" />
+    </div>
+
+    <button class="btn" id="shortenBtn" onclick="shorten()">Encurtar link</button>
+    <p id="msg" class="msg"></p>
+    <div id="result" class="result">
       <p class="result-label">Link criado</p>
       <div class="result-row">
         <a id="shortLink" href="#" target="_blank"></a>
         <button class="btn copy-btn" id="copyBtn" onclick="copy()">Copiar</button>
       </div>
-      <button class="btn back-btn" onclick="newLink()">Encurtar outro link</button>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <img src="/logo.png" alt="rmgo.net" style="margin-top:10px;height:150px;opacity:0.85;" />
 
   <script>
     const API = '/api/urls';
@@ -364,14 +318,8 @@
       el.textContent = data.shortUrl.replace(/^https?:\/\//, '');
       document.getElementById('copyBtn').textContent = 'Copiar';
       document.getElementById('copyBtn').classList.remove('copied');
+      document.getElementById('result').style.display = 'block';
       document.getElementById('urlInput').value = '';
-      document.getElementById('page-form').style.display = 'none';
-      document.getElementById('page-result').style.display = 'flex';
-    }
-
-    function newLink() {
-      document.getElementById('page-result').style.display = 'none';
-      document.getElementById('page-form').style.display = 'flex';
     }
 
     function copy() {
