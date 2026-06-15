@@ -259,20 +259,22 @@
   </div>
 
   <div class="card">
-    <p class="card-title">Novo link</p>
-    <div class="input-wrapper">
-      <span class="icon">🌐</span>
-      <input id="urlInput" type="url" placeholder="https://exemplo.com/seu-link-muito-longo" />
+    <div id="form-content">
+      <p class="card-title">Novo link</p>
+      <div class="input-wrapper">
+        <span class="icon">🌐</span>
+        <input id="urlInput" type="url" placeholder="https://exemplo.com/seu-link-muito-longo" />
+      </div>
+      <button class="btn" id="shortenBtn" onclick="shorten()">Encurtar link</button>
+      <p id="msg" class="msg"></p>
     </div>
-
-    <button class="btn" id="shortenBtn" onclick="shorten()">Encurtar link</button>
-    <p id="msg" class="msg"></p>
     <div id="result" class="result">
       <p class="result-label">Link criado</p>
       <div class="result-row">
         <a id="shortLink" href="#" target="_blank"></a>
         <button class="btn copy-btn" id="copyBtn" onclick="copy()">Copiar</button>
       </div>
+      <button class="btn" onclick="newLink()" style="margin-top:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:.85rem;">Encurtar outro link</button>
     </div>
   </div>
 
@@ -318,8 +320,14 @@
       el.textContent = data.shortUrl.replace(/^https?:\/\//, '');
       document.getElementById('copyBtn').textContent = 'Copiar';
       document.getElementById('copyBtn').classList.remove('copied');
+      document.getElementById('form-content').style.display = 'none';
       document.getElementById('result').style.display = 'block';
       document.getElementById('urlInput').value = '';
+    }
+
+    function newLink() {
+      document.getElementById('result').style.display = 'none';
+      document.getElementById('form-content').style.display = 'block';
     }
 
     function copy() {
