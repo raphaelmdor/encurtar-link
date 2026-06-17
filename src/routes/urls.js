@@ -40,14 +40,6 @@ router.post('/shorten', async (req, res) => {
   });
 });
 
-// Listar todos os links
-router.get('/', async (_req, res) => {
-  const result = await query(
-    'SELECT code, original_url, clicks, created_at FROM urls ORDER BY created_at DESC'
-  );
-  res.json(result.rows);
-});
-
 // Estatísticas de um link
 router.get('/:code/stats', async (req, res) => {
   const { code } = req.params;
@@ -61,19 +53,6 @@ router.get('/:code/stats', async (req, res) => {
   }
 
   res.json(result.rows[0]);
-});
-
-// Deletar um link
-router.delete('/:code', async (req, res) => {
-  const { code } = req.params;
-  const check = await query('SELECT id FROM urls WHERE code = $1', [code]);
-
-  if (check.rows.length === 0) {
-    return res.status(404).json({ error: 'Link não encontrado.' });
-  }
-
-  await query('DELETE FROM urls WHERE code = $1', [code]);
-  res.json({ message: 'Link removido com sucesso.' });
 });
 
 module.exports = router;
